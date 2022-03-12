@@ -23,7 +23,11 @@ public class Base32Test {
         String encode = Base32.encodeBase32(75324, 4);
         assertEquals("29jw", encode);
     }
-
+    @Test
+    public void EncodeBase32() throws Exception {
+        String encode = Base32.encodeBase32(15324);
+        assertEquals("000000000fyw", encode);
+    }
 }
 
 

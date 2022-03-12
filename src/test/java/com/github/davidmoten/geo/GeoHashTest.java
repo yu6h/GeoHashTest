@@ -55,6 +55,28 @@ public class GeoHashTest {
         assertFalse(GeoHash.hashContains("wsqqqm28s",
                 25.0338077545166, 120.56457901000977));
     }
-    
+    @Test
+    public void adjacentHash(){//2
+        assertEquals("wsqqhp8hk1mp",
+                GeoHash.adjacentHash("wsqqhp8hk1mn",Direction.TOP));
+        assertEquals("wsqqhp8hk1t1",
+                GeoHash.adjacentHash("wsqqhp8hk1mn",Direction.TOP,3));
+    }
+    @Test
+    public void right(){
+        assertEquals("wsqqhjwyuveh",
+                GeoHash.right("wsqqhjwyuvdu"));
+    }
+    @Test
+    public void bottom(){
+        assertEquals("wsqqhjwyuvdg",
+                GeoHash.bottom("wsqqhjwyuvdu"));
+    }
+    @Test
+    public void decodeHash(){
+        LatLong latLong = GeoHash.decodeHash("wsqqhjwyuvdu");
+        assertEquals(24.99233888,latLong.getLat(),0.001);
+        assertEquals(121.47432117,latLong.getLon(),0.001);
+    }
 
 }
