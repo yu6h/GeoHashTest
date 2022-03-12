@@ -79,4 +79,25 @@ public class GeoHashTest {
         assertEquals(121.47432117,latLong.getLon(),0.001);
     }
 
+    @Test
+    public void hashLengthToCoverBoundingBox(){
+        assertEquals(1,GeoHash.
+                hashLengthToCoverBoundingBox(24.67693180092837, 121.73868842362948,
+                        22.09087140332405, 120.75488854089994));
+        assertEquals(0,GeoHash.
+                hashLengthToCoverBoundingBox(36.633950257465244, 138.20176404334265,
+                        -1.2383111850902806, 103.60559538049397));
+        assertEquals(3,GeoHash.
+                hashLengthToCoverBoundingBox(29.240501036359017, 107.95600702691077,
+                        29.230257104690256, 107.92737197784561));
+    }
+    @Test
+    public void neighbours(){
+        List<String> list = java.util.Arrays
+                .asList("wsqqhjwyuvds", "wsqqhjwyuveh",
+                        "wsqqhjwyuvdv", "wsqqhjwyuvdg",
+                        "wsqqhjwyuvdt", "wsqqhjwyuvde",
+                        "wsqqhjwyuvej", "wsqqhjwyuve5");
+        assertTrue(list.equals(GeoHash.neighbours("wsqqhjwyuvdu")));
+    }
 }
