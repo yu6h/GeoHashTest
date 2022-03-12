@@ -10,16 +10,20 @@ public class Base32Test {
 
     @Before
     public void setUp() throws Exception {
+
     }
 
     @After
     public void tearDown() throws Exception {
+
     }
 
     @Test
-    public void encodeBase32() throws Exception {
+    public void EncodeBase32WithTwoParameters() throws Exception {
         String encode = Base32.encodeBase32(75324, 4);
         assertEquals("29jw", encode);
     }
 
 }
+
+

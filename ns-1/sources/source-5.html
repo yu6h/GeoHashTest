@@ -1,0 +1,1024 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > GeoHash</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.github.davidmoten.geo</a>
+</div>
+
+<h1>Coverage Summary for Class: GeoHash (com.github.davidmoten.geo)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GeoHash</td>
+<td class="coverageStat">
+  <span class="percent">
+    75.7%
+  </span>
+  <span class="absValue">
+    (28/37)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    73.8%
+  </span>
+  <span class="absValue">
+    (166/225)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">GeoHash$HashHeights</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">GeoHash$HashWidths</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">GeoHash$LongSet</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/11)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    72.7%
+  </span>
+  <span class="absValue">
+    (32/44)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    71.5%
+  </span>
+  <span class="absValue">
+    (176/246)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.github.davidmoten.geo;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import static com.github.davidmoten.grumpy.core.Position.to180;
+<i class="no-highlight">4</i>&nbsp;
+<i class="no-highlight">5</i>&nbsp;import java.util.ArrayList;
+<i class="no-highlight">6</i>&nbsp;import java.util.Collections;
+<i class="no-highlight">7</i>&nbsp;import java.util.HashMap;
+<i class="no-highlight">8</i>&nbsp;import java.util.List;
+<i class="no-highlight">9</i>&nbsp;import java.util.Map;
+<i class="no-highlight">10</i>&nbsp;import java.util.Set;
+<i class="no-highlight">11</i>&nbsp;
+<i class="no-highlight">12</i>&nbsp;import com.github.davidmoten.geo.util.Preconditions;
+<i class="no-highlight">13</i>&nbsp;import com.github.davidmoten.grumpy.core.Position;
+<i class="no-highlight">14</i>&nbsp;
+<i class="no-highlight">15</i>&nbsp;/**
+<i class="no-highlight">16</i>&nbsp; * &lt;p&gt;
+<i class="no-highlight">17</i>&nbsp; * Utility functions for
+<i class="no-highlight">18</i>&nbsp; * &lt;a href=&quot;http://en.wikipedia.org/wiki/Geohash&quot;&gt;geohashing&lt;/a&gt;.
+<i class="no-highlight">19</i>&nbsp; * &lt;/p&gt;
+<i class="no-highlight">20</i>&nbsp; * 
+<i class="no-highlight">21</i>&nbsp; */
+<b class="fc"><i class="no-highlight">22</i>&nbsp;public final class GeoHash {</b>
+<i class="no-highlight">23</i>&nbsp;
+<i class="no-highlight">24</i>&nbsp;    private static final double PRECISION = 0.000000000001;
+<i class="no-highlight">25</i>&nbsp;
+<i class="no-highlight">26</i>&nbsp;    /**
+<i class="no-highlight">27</i>&nbsp;     * The standard practical maximum length for geohashes.
+<i class="no-highlight">28</i>&nbsp;     */
+<i class="no-highlight">29</i>&nbsp;    public static final int MAX_HASH_LENGTH = 12;
+<i class="no-highlight">30</i>&nbsp;
+<i class="no-highlight">31</i>&nbsp;    /**
+<i class="no-highlight">32</i>&nbsp;     * Default maximum number of hashes for covering a bounding box.
+<i class="no-highlight">33</i>&nbsp;     */
+<i class="no-highlight">34</i>&nbsp;    public static final int DEFAULT_MAX_HASHES = 12;
+<i class="no-highlight">35</i>&nbsp;
+<i class="no-highlight">36</i>&nbsp;    /**
+<i class="no-highlight">37</i>&nbsp;     * Powers of 2 from 32 down to 1.
+<i class="no-highlight">38</i>&nbsp;     */
+<b class="fc"><i class="no-highlight">39</i>&nbsp;    private static final int[] BITS = new int[] { 16, 8, 4, 2, 1 };</b>
+<i class="no-highlight">40</i>&nbsp;
+<i class="no-highlight">41</i>&nbsp;    /**
+<i class="no-highlight">42</i>&nbsp;     * The characters used in base 32 representations.
+<i class="no-highlight">43</i>&nbsp;     */
+<i class="no-highlight">44</i>&nbsp;    private static final String BASE32 = &quot;0123456789bcdefghjkmnpqrstuvwxyz&quot;;
+<i class="no-highlight">45</i>&nbsp;
+<i class="no-highlight">46</i>&nbsp;    /**
+<i class="no-highlight">47</i>&nbsp;     * Utility lookup for neighbouring hashes.
+<i class="no-highlight">48</i>&nbsp;     */
+<b class="fc"><i class="no-highlight">49</i>&nbsp;    private static final Map&lt;Direction, Map&lt;Parity, String&gt;&gt; NEIGHBOURS = createNeighbours();</b>
+<i class="no-highlight">50</i>&nbsp;
+<i class="no-highlight">51</i>&nbsp;    /**
+<i class="no-highlight">52</i>&nbsp;     * Utility lookup for hash borders.
+<i class="no-highlight">53</i>&nbsp;     */
+<b class="fc"><i class="no-highlight">54</i>&nbsp;    private static final Map&lt;Direction, Map&lt;Parity, String&gt;&gt; BORDERS = createBorders();</b>
+<i class="no-highlight">55</i>&nbsp;
+<i class="no-highlight">56</i>&nbsp;    /**
+<i class="no-highlight">57</i>&nbsp;     * Private constructor.
+<i class="no-highlight">58</i>&nbsp;     */
+<i class="no-highlight">59</i>&nbsp;    private GeoHash() {
+<i class="no-highlight">60</i>&nbsp;        // prevent instantiation
+<i class="no-highlight">61</i>&nbsp;    }
+<i class="no-highlight">62</i>&nbsp;
+<i class="no-highlight">63</i>&nbsp;    /**
+<i class="no-highlight">64</i>&nbsp;     * Returns a map to be used in hash border calculations.
+<i class="no-highlight">65</i>&nbsp;     * 
+<i class="no-highlight">66</i>&nbsp;     * @return map of borders
+<i class="no-highlight">67</i>&nbsp;     */
+<i class="no-highlight">68</i>&nbsp;    private static Map&lt;Direction, Map&lt;Parity, String&gt;&gt; createBorders() {
+<b class="fc"><i class="no-highlight">69</i>&nbsp;        Map&lt;Direction, Map&lt;Parity, String&gt;&gt; m = createDirectionParityMap();</b>
+<i class="no-highlight">70</i>&nbsp;
+<b class="fc"><i class="no-highlight">71</i>&nbsp;        m.get(Direction.RIGHT).put(Parity.EVEN, &quot;bcfguvyz&quot;);</b>
+<b class="fc"><i class="no-highlight">72</i>&nbsp;        m.get(Direction.LEFT).put(Parity.EVEN, &quot;0145hjnp&quot;);</b>
+<b class="fc"><i class="no-highlight">73</i>&nbsp;        m.get(Direction.TOP).put(Parity.EVEN, &quot;prxz&quot;);</b>
+<b class="fc"><i class="no-highlight">74</i>&nbsp;        m.get(Direction.BOTTOM).put(Parity.EVEN, &quot;028b&quot;);</b>
+<i class="no-highlight">75</i>&nbsp;
+<b class="fc"><i class="no-highlight">76</i>&nbsp;        addOddParityEntries(m);</b>
+<b class="fc"><i class="no-highlight">77</i>&nbsp;        return m;</b>
+<i class="no-highlight">78</i>&nbsp;    }
+<i class="no-highlight">79</i>&nbsp;
+<i class="no-highlight">80</i>&nbsp;    /**
+<i class="no-highlight">81</i>&nbsp;     * Returns a map to be used in adjacent hash calculations.
+<i class="no-highlight">82</i>&nbsp;     * 
+<i class="no-highlight">83</i>&nbsp;     * @return map
+<i class="no-highlight">84</i>&nbsp;     */
+<i class="no-highlight">85</i>&nbsp;    private static Map&lt;Direction, Map&lt;Parity, String&gt;&gt; createNeighbours() {
+<b class="fc"><i class="no-highlight">86</i>&nbsp;        Map&lt;Direction, Map&lt;Parity, String&gt;&gt; m = createDirectionParityMap();</b>
+<i class="no-highlight">87</i>&nbsp;
+<b class="fc"><i class="no-highlight">88</i>&nbsp;        m.get(Direction.RIGHT).put(Parity.EVEN, &quot;bc01fg45238967deuvhjyznpkmstqrwx&quot;);</b>
+<b class="fc"><i class="no-highlight">89</i>&nbsp;        m.get(Direction.LEFT).put(Parity.EVEN, &quot;238967debc01fg45kmstqrwxuvhjyznp&quot;);</b>
+<b class="fc"><i class="no-highlight">90</i>&nbsp;        m.get(Direction.TOP).put(Parity.EVEN, &quot;p0r21436x8zb9dcf5h7kjnmqesgutwvy&quot;);</b>
+<b class="fc"><i class="no-highlight">91</i>&nbsp;        m.get(Direction.BOTTOM).put(Parity.EVEN, &quot;14365h7k9dcfesgujnmqp0r2twvyx8zb&quot;);</b>
+<b class="fc"><i class="no-highlight">92</i>&nbsp;        addOddParityEntries(m);</b>
+<i class="no-highlight">93</i>&nbsp;
+<b class="fc"><i class="no-highlight">94</i>&nbsp;        return m;</b>
+<i class="no-highlight">95</i>&nbsp;    }
+<i class="no-highlight">96</i>&nbsp;
+<i class="no-highlight">97</i>&nbsp;    /**
+<i class="no-highlight">98</i>&nbsp;     * Create a direction and parity map for use in adjacent hash calculations.
+<i class="no-highlight">99</i>&nbsp;     * 
+<i class="no-highlight">100</i>&nbsp;     * @return map
+<i class="no-highlight">101</i>&nbsp;     */
+<i class="no-highlight">102</i>&nbsp;    private static Map&lt;Direction, Map&lt;Parity, String&gt;&gt; createDirectionParityMap() {
+<b class="fc"><i class="no-highlight">103</i>&nbsp;        Map&lt;Direction, Map&lt;Parity, String&gt;&gt; m = newHashMap();</b>
+<b class="fc"><i class="no-highlight">104</i>&nbsp;        m.put(Direction.BOTTOM, GeoHash.&lt;Parity, String&gt; newHashMap());</b>
+<b class="fc"><i class="no-highlight">105</i>&nbsp;        m.put(Direction.TOP, GeoHash.&lt;Parity, String&gt; newHashMap());</b>
+<b class="fc"><i class="no-highlight">106</i>&nbsp;        m.put(Direction.LEFT, GeoHash.&lt;Parity, String&gt; newHashMap());</b>
+<b class="fc"><i class="no-highlight">107</i>&nbsp;        m.put(Direction.RIGHT, GeoHash.&lt;Parity, String&gt; newHashMap());</b>
+<b class="fc"><i class="no-highlight">108</i>&nbsp;        return m;</b>
+<i class="no-highlight">109</i>&nbsp;    }
+<i class="no-highlight">110</i>&nbsp;
+<i class="no-highlight">111</i>&nbsp;    private static &lt;T, D&gt; Map&lt;T, D&gt; newHashMap() {
+<b class="fc"><i class="no-highlight">112</i>&nbsp;        return new HashMap&lt;T, D&gt;();</b>
+<i class="no-highlight">113</i>&nbsp;    }
+<i class="no-highlight">114</i>&nbsp;
+<i class="no-highlight">115</i>&nbsp;    /**
+<i class="no-highlight">116</i>&nbsp;     * Puts odd parity entries in the map m based purely on the even entries.
+<i class="no-highlight">117</i>&nbsp;     * 
+<i class="no-highlight">118</i>&nbsp;     * @param m
+<i class="no-highlight">119</i>&nbsp;     *            map
+<i class="no-highlight">120</i>&nbsp;     */
+<i class="no-highlight">121</i>&nbsp;    private static void addOddParityEntries(Map&lt;Direction, Map&lt;Parity, String&gt;&gt; m) {
+<b class="fc"><i class="no-highlight">122</i>&nbsp;        m.get(Direction.BOTTOM).put(Parity.ODD, m.get(Direction.LEFT).get(Parity.EVEN));</b>
+<b class="fc"><i class="no-highlight">123</i>&nbsp;        m.get(Direction.TOP).put(Parity.ODD, m.get(Direction.RIGHT).get(Parity.EVEN));</b>
+<b class="fc"><i class="no-highlight">124</i>&nbsp;        m.get(Direction.LEFT).put(Parity.ODD, m.get(Direction.BOTTOM).get(Parity.EVEN));</b>
+<b class="fc"><i class="no-highlight">125</i>&nbsp;        m.get(Direction.RIGHT).put(Parity.ODD, m.get(Direction.TOP).get(Parity.EVEN));</b>
+<i class="no-highlight">126</i>&nbsp;    }
+<i class="no-highlight">127</i>&nbsp;
+<i class="no-highlight">128</i>&nbsp;    /**
+<i class="no-highlight">129</i>&nbsp;     * Returns the adjacent hash in given {@link Direction}. Based on
+<i class="no-highlight">130</i>&nbsp;     * https://github.com/davetroy/geohash-js/blob/master/geohash.js. This
+<i class="no-highlight">131</i>&nbsp;     * method is an improvement on the original js method because it works at
+<i class="no-highlight">132</i>&nbsp;     * borders too (at the poles and the -180,180 longitude boundaries).
+<i class="no-highlight">133</i>&nbsp;     * 
+<i class="no-highlight">134</i>&nbsp;     * @param hash
+<i class="no-highlight">135</i>&nbsp;     *            string hash relative to which the adjacent is returned
+<i class="no-highlight">136</i>&nbsp;     * @param direction
+<i class="no-highlight">137</i>&nbsp;     *            direction relative to {@code hash} for which the adjacent is
+<i class="no-highlight">138</i>&nbsp;     *            returned
+<i class="no-highlight">139</i>&nbsp;     * @return hash of adjacent hash
+<i class="no-highlight">140</i>&nbsp;     */
+<i class="no-highlight">141</i>&nbsp;    public static String adjacentHash(String hash, Direction direction) {
+<b class="fc"><i class="no-highlight">142</i>&nbsp;        checkHash(hash);</b>
+<b class="fc"><i class="no-highlight">143</i>&nbsp;        Preconditions.checkArgument(hash.length() &gt; 0,</b>
+<i class="no-highlight">144</i>&nbsp;                &quot;adjacent has no meaning for a zero length hash that covers the whole world&quot;);
+<i class="no-highlight">145</i>&nbsp;
+<b class="fc"><i class="no-highlight">146</i>&nbsp;        String adjacentHashAtBorder = adjacentHashAtBorder(hash, direction);</b>
+<b class="fc"><i class="no-highlight">147</i>&nbsp;        if (adjacentHashAtBorder != null)</b>
+<b class="nc"><i class="no-highlight">148</i>&nbsp;            return adjacentHashAtBorder;</b>
+<i class="no-highlight">149</i>&nbsp;
+<b class="fc"><i class="no-highlight">150</i>&nbsp;        String source = hash.toLowerCase();</b>
+<b class="fc"><i class="no-highlight">151</i>&nbsp;        char lastChar = source.charAt(source.length() - 1);</b>
+<b class="fc"><i class="no-highlight">152</i>&nbsp;        Parity parity = (source.length() % 2 == 0) ? Parity.EVEN : Parity.ODD;</b>
+<b class="fc"><i class="no-highlight">153</i>&nbsp;        String base = source.substring(0, source.length() - 1);</b>
+<b class="fc"><i class="no-highlight">154</i>&nbsp;        if (BORDERS.get(direction).get(parity).indexOf(lastChar) != -1)</b>
+<b class="fc"><i class="no-highlight">155</i>&nbsp;            base = adjacentHash(base, direction);</b>
+<b class="fc"><i class="no-highlight">156</i>&nbsp;        return base + BASE32.charAt(NEIGHBOURS.get(direction).get(parity).indexOf(lastChar));</b>
+<i class="no-highlight">157</i>&nbsp;    }
+<i class="no-highlight">158</i>&nbsp;
+<i class="no-highlight">159</i>&nbsp;    private static String adjacentHashAtBorder(String hash, Direction direction) {
+<i class="no-highlight">160</i>&nbsp;        // check if hash is on edge and direction would push us over the edge
+<i class="no-highlight">161</i>&nbsp;        // if so, wrap round to the other limit for longitude
+<i class="no-highlight">162</i>&nbsp;        // or if at latitude boundary (a pole) then spin longitude around 180
+<i class="no-highlight">163</i>&nbsp;        // degrees.
+<b class="fc"><i class="no-highlight">164</i>&nbsp;        LatLong centre = decodeHash(hash);</b>
+<i class="no-highlight">165</i>&nbsp;
+<i class="no-highlight">166</i>&nbsp;        // if rightmost hash
+<b class="fc"><i class="no-highlight">167</i>&nbsp;        if (Direction.RIGHT.equals(direction)) {</b>
+<b class="fc"><i class="no-highlight">168</i>&nbsp;            if (Math.abs(centre.getLon() + widthDegrees(hash.length()) / 2 - 180) &lt; PRECISION) {</b>
+<b class="nc"><i class="no-highlight">169</i>&nbsp;                return encodeHash(centre.getLat(), -180, hash.length());</b>
+<i class="no-highlight">170</i>&nbsp;            }
+<i class="no-highlight">171</i>&nbsp;        }
+<i class="no-highlight">172</i>&nbsp;        // if leftmost hash
+<b class="fc"><i class="no-highlight">173</i>&nbsp;        else if (Direction.LEFT.equals(direction)) {</b>
+<b class="fc"><i class="no-highlight">174</i>&nbsp;            if (Math.abs(centre.getLon() - widthDegrees(hash.length()) / 2 + 180) &lt; PRECISION) {</b>
+<b class="nc"><i class="no-highlight">175</i>&nbsp;                return encodeHash(centre.getLat(), 180, hash.length());</b>
+<i class="no-highlight">176</i>&nbsp;            }
+<i class="no-highlight">177</i>&nbsp;        }
+<i class="no-highlight">178</i>&nbsp;        // if topmost hash
+<b class="fc"><i class="no-highlight">179</i>&nbsp;        else if (Direction.TOP.equals(direction)) {</b>
+<b class="fc"><i class="no-highlight">180</i>&nbsp;            if (Math.abs(centre.getLat() + widthDegrees(hash.length()) / 2 - 90) &lt; PRECISION) {</b>
+<b class="nc"><i class="no-highlight">181</i>&nbsp;                return encodeHash(centre.getLat(), centre.getLon() + 180, hash.length());</b>
+<i class="no-highlight">182</i>&nbsp;            }
+<i class="no-highlight">183</i>&nbsp;        }
+<i class="no-highlight">184</i>&nbsp;        // if bottommost hash
+<i class="no-highlight">185</i>&nbsp;        else {
+<b class="fc"><i class="no-highlight">186</i>&nbsp;            if (Math.abs(centre.getLat() - widthDegrees(hash.length()) / 2 + 90) &lt; PRECISION) {</b>
+<b class="nc"><i class="no-highlight">187</i>&nbsp;                return encodeHash(centre.getLat(), centre.getLon() + 180, hash.length());</b>
+<i class="no-highlight">188</i>&nbsp;            }
+<i class="no-highlight">189</i>&nbsp;        }
+<i class="no-highlight">190</i>&nbsp;
+<b class="fc"><i class="no-highlight">191</i>&nbsp;        return null;</b>
+<i class="no-highlight">192</i>&nbsp;    }
+<i class="no-highlight">193</i>&nbsp;
+<i class="no-highlight">194</i>&nbsp;    /**
+<i class="no-highlight">195</i>&nbsp;     * Throws an {@link IllegalArgumentException} if and only if the hash is
+<i class="no-highlight">196</i>&nbsp;     * null or blank.
+<i class="no-highlight">197</i>&nbsp;     * 
+<i class="no-highlight">198</i>&nbsp;     * @param hash
+<i class="no-highlight">199</i>&nbsp;     *            to check
+<i class="no-highlight">200</i>&nbsp;     */
+<i class="no-highlight">201</i>&nbsp;    private static void checkHash(String hash) {
+<b class="fc"><i class="no-highlight">202</i>&nbsp;        Preconditions.checkArgument(hash != null, &quot;hash must be non-null&quot;);</b>
+<i class="no-highlight">203</i>&nbsp;    }
+<i class="no-highlight">204</i>&nbsp;
+<i class="no-highlight">205</i>&nbsp;    /**
+<i class="no-highlight">206</i>&nbsp;     * Returns the adjacent hash to the right (east).
+<i class="no-highlight">207</i>&nbsp;     * 
+<i class="no-highlight">208</i>&nbsp;     * @param hash
+<i class="no-highlight">209</i>&nbsp;     *            to check
+<i class="no-highlight">210</i>&nbsp;     * @return hash on right of given hash
+<i class="no-highlight">211</i>&nbsp;     */
+<i class="no-highlight">212</i>&nbsp;    public static String right(String hash) {
+<b class="fc"><i class="no-highlight">213</i>&nbsp;        return adjacentHash(hash, Direction.RIGHT);</b>
+<i class="no-highlight">214</i>&nbsp;    }
+<i class="no-highlight">215</i>&nbsp;
+<i class="no-highlight">216</i>&nbsp;    /**
+<i class="no-highlight">217</i>&nbsp;     * Returns the adjacent hash to the left (west).
+<i class="no-highlight">218</i>&nbsp;     * 
+<i class="no-highlight">219</i>&nbsp;     * @param hash
+<i class="no-highlight">220</i>&nbsp;     *            origin
+<i class="no-highlight">221</i>&nbsp;     * @return hash on left of origin hash
+<i class="no-highlight">222</i>&nbsp;     */
+<i class="no-highlight">223</i>&nbsp;    public static String left(String hash) {
+<b class="nc"><i class="no-highlight">224</i>&nbsp;        return adjacentHash(hash, Direction.LEFT);</b>
+<i class="no-highlight">225</i>&nbsp;    }
+<i class="no-highlight">226</i>&nbsp;
+<i class="no-highlight">227</i>&nbsp;    /**
+<i class="no-highlight">228</i>&nbsp;     * Returns the adjacent hash to the top (north).
+<i class="no-highlight">229</i>&nbsp;     * 
+<i class="no-highlight">230</i>&nbsp;     * @param hash
+<i class="no-highlight">231</i>&nbsp;     *            origin
+<i class="no-highlight">232</i>&nbsp;     * @return hash above origin hash
+<i class="no-highlight">233</i>&nbsp;     */
+<i class="no-highlight">234</i>&nbsp;    public static String top(String hash) {
+<b class="nc"><i class="no-highlight">235</i>&nbsp;        return adjacentHash(hash, Direction.TOP);</b>
+<i class="no-highlight">236</i>&nbsp;    }
+<i class="no-highlight">237</i>&nbsp;
+<i class="no-highlight">238</i>&nbsp;    /**
+<i class="no-highlight">239</i>&nbsp;     * Returns the adjacent hash to the bottom (south).
+<i class="no-highlight">240</i>&nbsp;     * 
+<i class="no-highlight">241</i>&nbsp;     * @param hash
+<i class="no-highlight">242</i>&nbsp;     *            origin
+<i class="no-highlight">243</i>&nbsp;     * @return hash below (south) of origin hash
+<i class="no-highlight">244</i>&nbsp;     */
+<i class="no-highlight">245</i>&nbsp;    public static String bottom(String hash) {
+<b class="fc"><i class="no-highlight">246</i>&nbsp;        return adjacentHash(hash, Direction.BOTTOM);</b>
+<i class="no-highlight">247</i>&nbsp;    }
+<i class="no-highlight">248</i>&nbsp;
+<i class="no-highlight">249</i>&nbsp;    /**
+<i class="no-highlight">250</i>&nbsp;     * Returns the adjacent hash N steps in the given {@link Direction}. A
+<i class="no-highlight">251</i>&nbsp;     * negative N will use the opposite {@link Direction}.
+<i class="no-highlight">252</i>&nbsp;     * 
+<i class="no-highlight">253</i>&nbsp;     * @param hash
+<i class="no-highlight">254</i>&nbsp;     *            origin hash
+<i class="no-highlight">255</i>&nbsp;     * @param direction
+<i class="no-highlight">256</i>&nbsp;     *            to desired hash
+<i class="no-highlight">257</i>&nbsp;     * @param steps
+<i class="no-highlight">258</i>&nbsp;     *            number of hashes distance to desired hash
+<i class="no-highlight">259</i>&nbsp;     * @return hash at position in direction a number of hashes away (steps)
+<i class="no-highlight">260</i>&nbsp;     */
+<i class="no-highlight">261</i>&nbsp;    public static String adjacentHash(String hash, Direction direction, int steps) {
+<b class="fc"><i class="no-highlight">262</i>&nbsp;        if (steps &lt; 0)</b>
+<b class="nc"><i class="no-highlight">263</i>&nbsp;            return adjacentHash(hash, direction.opposite(), Math.abs(steps));</b>
+<i class="no-highlight">264</i>&nbsp;        else {
+<b class="fc"><i class="no-highlight">265</i>&nbsp;            String h = hash;</b>
+<b class="fc"><i class="no-highlight">266</i>&nbsp;            for (int i = 0; i &lt; steps; i++)</b>
+<b class="fc"><i class="no-highlight">267</i>&nbsp;                h = adjacentHash(h, direction);</b>
+<b class="fc"><i class="no-highlight">268</i>&nbsp;            return h;</b>
+<i class="no-highlight">269</i>&nbsp;        }
+<i class="no-highlight">270</i>&nbsp;    }
+<i class="no-highlight">271</i>&nbsp;
+<i class="no-highlight">272</i>&nbsp;    /**
+<i class="no-highlight">273</i>&nbsp;     * Returns a list of the 8 surrounding hashes for a given hash in order
+<i class="no-highlight">274</i>&nbsp;     * left,right,top,bottom,left-top,left-bottom,right-top,right-bottom.
+<i class="no-highlight">275</i>&nbsp;     * 
+<i class="no-highlight">276</i>&nbsp;     * @param hash
+<i class="no-highlight">277</i>&nbsp;     *            source
+<i class="no-highlight">278</i>&nbsp;     * @return a list of neighbour hashes
+<i class="no-highlight">279</i>&nbsp;     */
+<i class="no-highlight">280</i>&nbsp;    public static List&lt;String&gt; neighbours(String hash) {
+<b class="fc"><i class="no-highlight">281</i>&nbsp;        List&lt;String&gt; list = new ArrayList&lt;String&gt;();</b>
+<b class="fc"><i class="no-highlight">282</i>&nbsp;        String left = adjacentHash(hash, Direction.LEFT);</b>
+<b class="fc"><i class="no-highlight">283</i>&nbsp;        String right = adjacentHash(hash, Direction.RIGHT);</b>
+<b class="fc"><i class="no-highlight">284</i>&nbsp;        list.add(left);</b>
+<b class="fc"><i class="no-highlight">285</i>&nbsp;        list.add(right);</b>
+<b class="fc"><i class="no-highlight">286</i>&nbsp;        list.add(adjacentHash(hash, Direction.TOP));</b>
+<b class="fc"><i class="no-highlight">287</i>&nbsp;        list.add(adjacentHash(hash, Direction.BOTTOM));</b>
+<b class="fc"><i class="no-highlight">288</i>&nbsp;        list.add(adjacentHash(left, Direction.TOP));</b>
+<b class="fc"><i class="no-highlight">289</i>&nbsp;        list.add(adjacentHash(left, Direction.BOTTOM));</b>
+<b class="fc"><i class="no-highlight">290</i>&nbsp;        list.add(adjacentHash(right, Direction.TOP));</b>
+<b class="fc"><i class="no-highlight">291</i>&nbsp;        list.add(adjacentHash(right, Direction.BOTTOM));</b>
+<b class="fc"><i class="no-highlight">292</i>&nbsp;        return list;</b>
+<i class="no-highlight">293</i>&nbsp;    }
+<i class="no-highlight">294</i>&nbsp;
+<i class="no-highlight">295</i>&nbsp;    /**
+<i class="no-highlight">296</i>&nbsp;     * Returns a geohash of length {@link GeoHash#MAX_HASH_LENGTH} (12) for the
+<i class="no-highlight">297</i>&nbsp;     * given WGS84 point (latitude,longitude).
+<i class="no-highlight">298</i>&nbsp;     * 
+<i class="no-highlight">299</i>&nbsp;     * @param latitude
+<i class="no-highlight">300</i>&nbsp;     *            in decimal degrees (WGS84)
+<i class="no-highlight">301</i>&nbsp;     * @param longitude
+<i class="no-highlight">302</i>&nbsp;     *            in decimal degrees (WGS84)
+<i class="no-highlight">303</i>&nbsp;     * @return hash at given point of default length
+<i class="no-highlight">304</i>&nbsp;     */
+<i class="no-highlight">305</i>&nbsp;    public static String encodeHash(double latitude, double longitude) {
+<b class="fc"><i class="no-highlight">306</i>&nbsp;        return encodeHash(latitude, longitude, MAX_HASH_LENGTH);</b>
+<i class="no-highlight">307</i>&nbsp;    }
+<i class="no-highlight">308</i>&nbsp;
+<i class="no-highlight">309</i>&nbsp;    /**
+<i class="no-highlight">310</i>&nbsp;     * Returns a geohash of given length for the given WGS84 point.
+<i class="no-highlight">311</i>&nbsp;     * 
+<i class="no-highlight">312</i>&nbsp;     * @param p
+<i class="no-highlight">313</i>&nbsp;     *            point
+<i class="no-highlight">314</i>&nbsp;     * @param length
+<i class="no-highlight">315</i>&nbsp;     *            length of hash
+<i class="no-highlight">316</i>&nbsp;     * @return hash at point of given length
+<i class="no-highlight">317</i>&nbsp;     */
+<i class="no-highlight">318</i>&nbsp;    public static String encodeHash(LatLong p, int length) {
+<b class="fc"><i class="no-highlight">319</i>&nbsp;        return encodeHash(p.getLat(), p.getLon(), length);</b>
+<i class="no-highlight">320</i>&nbsp;    }
+<i class="no-highlight">321</i>&nbsp;
+<i class="no-highlight">322</i>&nbsp;    /**
+<i class="no-highlight">323</i>&nbsp;     * Returns a geohash of of length {@link GeoHash#MAX_HASH_LENGTH} (12) for
+<i class="no-highlight">324</i>&nbsp;     * the given WGS84 point.
+<i class="no-highlight">325</i>&nbsp;     * 
+<i class="no-highlight">326</i>&nbsp;     * @param p
+<i class="no-highlight">327</i>&nbsp;     *            point
+<i class="no-highlight">328</i>&nbsp;     * @return hash of default length
+<i class="no-highlight">329</i>&nbsp;     */
+<i class="no-highlight">330</i>&nbsp;    public static String encodeHash(LatLong p) {
+<b class="fc"><i class="no-highlight">331</i>&nbsp;        return encodeHash(p.getLat(), p.getLon(), MAX_HASH_LENGTH);</b>
+<i class="no-highlight">332</i>&nbsp;    }
+<i class="no-highlight">333</i>&nbsp;
+<i class="no-highlight">334</i>&nbsp;    /**
+<i class="no-highlight">335</i>&nbsp;     * Returns a geohash of given length for the given WGS84 point
+<i class="no-highlight">336</i>&nbsp;     * (latitude,longitude). If latitude is not between -90 and 90 throws an
+<i class="no-highlight">337</i>&nbsp;     * {@link IllegalArgumentException}.
+<i class="no-highlight">338</i>&nbsp;     * 
+<i class="no-highlight">339</i>&nbsp;     * @param latitude
+<i class="no-highlight">340</i>&nbsp;     *            in decimal degrees (WGS84)
+<i class="no-highlight">341</i>&nbsp;     * @param longitude
+<i class="no-highlight">342</i>&nbsp;     *            in decimal degrees (WGS84)
+<i class="no-highlight">343</i>&nbsp;     * @param length
+<i class="no-highlight">344</i>&nbsp;     *            length of desired hash
+<i class="no-highlight">345</i>&nbsp;     * @return geohash of given length for the given point
+<i class="no-highlight">346</i>&nbsp;     */
+<i class="no-highlight">347</i>&nbsp;    // Translated to java from:
+<i class="no-highlight">348</i>&nbsp;    // geohash.js
+<i class="no-highlight">349</i>&nbsp;    // Geohash library for Javascript
+<i class="no-highlight">350</i>&nbsp;    // (c) 2008 David Troy
+<i class="no-highlight">351</i>&nbsp;    // Distributed under the MIT License
+<i class="no-highlight">352</i>&nbsp;    public static String encodeHash(double latitude, double longitude, int length) {
+<b class="fc"><i class="no-highlight">353</i>&nbsp;        Preconditions.checkArgument(length &gt; 0, &quot;length must be greater than zero&quot;);</b>
+<b class="fc"><i class="no-highlight">354</i>&nbsp;        Preconditions.checkArgument(latitude &gt;= -90 &amp;&amp; latitude &lt;= 90,</b>
+<i class="no-highlight">355</i>&nbsp;                &quot;latitude must be between -90 and 90 inclusive&quot;);
+<b class="fc"><i class="no-highlight">356</i>&nbsp;        longitude = Position.to180(longitude);</b>
+<i class="no-highlight">357</i>&nbsp;
+<b class="fc"><i class="no-highlight">358</i>&nbsp;        return fromLongToString(encodeHashToLong(latitude, longitude, length));</b>
+<i class="no-highlight">359</i>&nbsp;    }
+<i class="no-highlight">360</i>&nbsp;
+<i class="no-highlight">361</i>&nbsp;    /**
+<i class="no-highlight">362</i>&nbsp;     * Takes a hash represented as a long and returns it as a string.
+<i class="no-highlight">363</i>&nbsp;     *
+<i class="no-highlight">364</i>&nbsp;     * @param hash
+<i class="no-highlight">365</i>&nbsp;     *            the hash, with the length encoded in the 4 least significant
+<i class="no-highlight">366</i>&nbsp;     *            bits
+<i class="no-highlight">367</i>&nbsp;     * @return the string encoded geohash
+<i class="no-highlight">368</i>&nbsp;     */
+<i class="no-highlight">369</i>&nbsp;    static String fromLongToString(long hash) {
+<b class="fc"><i class="no-highlight">370</i>&nbsp;        int length = (int) (hash &amp; 0xf);</b>
+<b class="fc"><i class="no-highlight">371</i>&nbsp;        if (length &gt; 12 || length &lt; 1)</b>
+<b class="nc"><i class="no-highlight">372</i>&nbsp;            throw new IllegalArgumentException(&quot;invalid long geohash &quot; + hash);</b>
+<b class="fc"><i class="no-highlight">373</i>&nbsp;        char[] geohash = new char[length];</b>
+<b class="fc"><i class="no-highlight">374</i>&nbsp;        for (int pos = 0; pos &lt; length; pos++) {</b>
+<b class="fc"><i class="no-highlight">375</i>&nbsp;            geohash[pos] = BASE32.charAt(((int) (hash &gt;&gt;&gt; 59)));</b>
+<b class="fc"><i class="no-highlight">376</i>&nbsp;            hash &lt;&lt;= 5;</b>
+<i class="no-highlight">377</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">378</i>&nbsp;        return new String(geohash);</b>
+<i class="no-highlight">379</i>&nbsp;    }
+<i class="no-highlight">380</i>&nbsp;
+<i class="no-highlight">381</i>&nbsp;    static long encodeHashToLong(double latitude, double longitude, int length) {
+<b class="fc"><i class="no-highlight">382</i>&nbsp;        boolean isEven = true;</b>
+<b class="fc"><i class="no-highlight">383</i>&nbsp;        double minLat = -90.0, maxLat = 90;</b>
+<b class="fc"><i class="no-highlight">384</i>&nbsp;        double minLon = -180.0, maxLon = 180.0;</b>
+<b class="fc"><i class="no-highlight">385</i>&nbsp;        long bit = 0x8000000000000000L;</b>
+<b class="fc"><i class="no-highlight">386</i>&nbsp;        long g = 0;</b>
+<i class="no-highlight">387</i>&nbsp;
+<b class="fc"><i class="no-highlight">388</i>&nbsp;        long target = 0x8000000000000000L &gt;&gt;&gt; (5 * length);</b>
+<b class="fc"><i class="no-highlight">389</i>&nbsp;        while (bit != target) {</b>
+<b class="fc"><i class="no-highlight">390</i>&nbsp;            if (isEven) {</b>
+<b class="fc"><i class="no-highlight">391</i>&nbsp;                double mid = (minLon + maxLon) / 2;</b>
+<b class="fc"><i class="no-highlight">392</i>&nbsp;                if (longitude &gt;= mid) {</b>
+<b class="fc"><i class="no-highlight">393</i>&nbsp;                    g |= bit;</b>
+<b class="fc"><i class="no-highlight">394</i>&nbsp;                    minLon = mid;</b>
+<i class="no-highlight">395</i>&nbsp;                } else
+<b class="fc"><i class="no-highlight">396</i>&nbsp;                    maxLon = mid;</b>
+<b class="fc"><i class="no-highlight">397</i>&nbsp;            } else {</b>
+<b class="fc"><i class="no-highlight">398</i>&nbsp;                double mid = (minLat + maxLat) / 2;</b>
+<b class="fc"><i class="no-highlight">399</i>&nbsp;                if (latitude &gt;= mid) {</b>
+<b class="fc"><i class="no-highlight">400</i>&nbsp;                    g |= bit;</b>
+<b class="fc"><i class="no-highlight">401</i>&nbsp;                    minLat = mid;</b>
+<i class="no-highlight">402</i>&nbsp;                } else
+<b class="fc"><i class="no-highlight">403</i>&nbsp;                    maxLat = mid;</b>
+<i class="no-highlight">404</i>&nbsp;            }
+<i class="no-highlight">405</i>&nbsp;
+<b class="fc"><i class="no-highlight">406</i>&nbsp;            isEven = !isEven;</b>
+<b class="fc"><i class="no-highlight">407</i>&nbsp;            bit &gt;&gt;&gt;= 1;</b>
+<i class="no-highlight">408</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">409</i>&nbsp;        return g |= length;</b>
+<i class="no-highlight">410</i>&nbsp;    }
+<i class="no-highlight">411</i>&nbsp;
+<i class="no-highlight">412</i>&nbsp;    /**
+<i class="no-highlight">413</i>&nbsp;     * Returns a latitude,longitude pair as the centre of the given geohash.
+<i class="no-highlight">414</i>&nbsp;     * Latitude will be between -90 and 90 and longitude between -180 and 180.
+<i class="no-highlight">415</i>&nbsp;     * 
+<i class="no-highlight">416</i>&nbsp;     * @param geohash
+<i class="no-highlight">417</i>&nbsp;     *            hash to decode
+<i class="no-highlight">418</i>&nbsp;     * @return lat long point
+<i class="no-highlight">419</i>&nbsp;     */
+<i class="no-highlight">420</i>&nbsp;    // Translated to java from:
+<i class="no-highlight">421</i>&nbsp;    // geohash.js
+<i class="no-highlight">422</i>&nbsp;    // Geohash library for Javascript
+<i class="no-highlight">423</i>&nbsp;    // (c) 2008 David Troy
+<i class="no-highlight">424</i>&nbsp;    // Distributed under the MIT License
+<i class="no-highlight">425</i>&nbsp;    public static LatLong decodeHash(String geohash) {
+<b class="fc"><i class="no-highlight">426</i>&nbsp;        Preconditions.checkNotNull(geohash, &quot;geohash cannot be null&quot;);</b>
+<b class="fc"><i class="no-highlight">427</i>&nbsp;        boolean isEven = true;</b>
+<b class="fc"><i class="no-highlight">428</i>&nbsp;        double[] lat = new double[2];</b>
+<b class="fc"><i class="no-highlight">429</i>&nbsp;        double[] lon = new double[2];</b>
+<b class="fc"><i class="no-highlight">430</i>&nbsp;        lat[0] = -90.0;</b>
+<b class="fc"><i class="no-highlight">431</i>&nbsp;        lat[1] = 90.0;</b>
+<b class="fc"><i class="no-highlight">432</i>&nbsp;        lon[0] = -180.0;</b>
+<b class="fc"><i class="no-highlight">433</i>&nbsp;        lon[1] = 180.0;</b>
+<i class="no-highlight">434</i>&nbsp;
+<b class="fc"><i class="no-highlight">435</i>&nbsp;        for (int i = 0; i &lt; geohash.length(); i++) {</b>
+<b class="fc"><i class="no-highlight">436</i>&nbsp;            char c = geohash.charAt(i);</b>
+<b class="fc"><i class="no-highlight">437</i>&nbsp;            int cd = BASE32.indexOf(c);</b>
+<b class="fc"><i class="no-highlight">438</i>&nbsp;            for (int j = 0; j &lt; 5; j++) {</b>
+<b class="fc"><i class="no-highlight">439</i>&nbsp;                int mask = BITS[j];</b>
+<b class="fc"><i class="no-highlight">440</i>&nbsp;                if (isEven) {</b>
+<b class="fc"><i class="no-highlight">441</i>&nbsp;                    refineInterval(lon, cd, mask);</b>
+<i class="no-highlight">442</i>&nbsp;                } else {
+<b class="fc"><i class="no-highlight">443</i>&nbsp;                    refineInterval(lat, cd, mask);</b>
+<i class="no-highlight">444</i>&nbsp;                }
+<b class="fc"><i class="no-highlight">445</i>&nbsp;                isEven = !isEven;</b>
+<i class="no-highlight">446</i>&nbsp;            }
+<i class="no-highlight">447</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">448</i>&nbsp;        double resultLat = (lat[0] + lat[1]) / 2;</b>
+<b class="fc"><i class="no-highlight">449</i>&nbsp;        double resultLon = (lon[0] + lon[1]) / 2;</b>
+<i class="no-highlight">450</i>&nbsp;
+<b class="fc"><i class="no-highlight">451</i>&nbsp;        return new LatLong(resultLat, resultLon);</b>
+<i class="no-highlight">452</i>&nbsp;    }
+<i class="no-highlight">453</i>&nbsp;
+<i class="no-highlight">454</i>&nbsp;    /**
+<i class="no-highlight">455</i>&nbsp;     * Refines interval by a factor or 2 in either the 0 or 1 ordinate.
+<i class="no-highlight">456</i>&nbsp;     * 
+<i class="no-highlight">457</i>&nbsp;     * @param interval
+<i class="no-highlight">458</i>&nbsp;     *            two entry array of double values
+<i class="no-highlight">459</i>&nbsp;     * @param cd
+<i class="no-highlight">460</i>&nbsp;     *            used with mask
+<i class="no-highlight">461</i>&nbsp;     * @param mask
+<i class="no-highlight">462</i>&nbsp;     *            used with cd
+<i class="no-highlight">463</i>&nbsp;     */
+<i class="no-highlight">464</i>&nbsp;    private static void refineInterval(double[] interval, int cd, int mask) {
+<b class="fc"><i class="no-highlight">465</i>&nbsp;        if ((cd &amp; mask) != 0)</b>
+<b class="fc"><i class="no-highlight">466</i>&nbsp;            interval[0] = (interval[0] + interval[1]) / 2;</b>
+<i class="no-highlight">467</i>&nbsp;        else
+<b class="fc"><i class="no-highlight">468</i>&nbsp;            interval[1] = (interval[0] + interval[1]) / 2;</b>
+<i class="no-highlight">469</i>&nbsp;    }
+<i class="no-highlight">470</i>&nbsp;
+<i class="no-highlight">471</i>&nbsp;    /**
+<i class="no-highlight">472</i>&nbsp;     * Returns the maximum length of hash that covers the bounding box. If no
+<i class="no-highlight">473</i>&nbsp;     * hash can enclose the bounding box then 0 is returned.
+<i class="no-highlight">474</i>&nbsp;     * 
+<i class="no-highlight">475</i>&nbsp;     * @param topLeftLat
+<i class="no-highlight">476</i>&nbsp;     *            latitude of top left point (north west)
+<i class="no-highlight">477</i>&nbsp;     * @param topLeftLon
+<i class="no-highlight">478</i>&nbsp;     *            longitude of top left point (north west)
+<i class="no-highlight">479</i>&nbsp;     * @param bottomRightLat
+<i class="no-highlight">480</i>&nbsp;     *            latitude of bottom right point (south east)
+<i class="no-highlight">481</i>&nbsp;     * @param bottomRightLon
+<i class="no-highlight">482</i>&nbsp;     *            longitude of bottom right point (south east)
+<i class="no-highlight">483</i>&nbsp;     * @return length of the hash
+<i class="no-highlight">484</i>&nbsp;     */
+<i class="no-highlight">485</i>&nbsp;    public static int hashLengthToCoverBoundingBox(double topLeftLat, double topLeftLon,
+<i class="no-highlight">486</i>&nbsp;            double bottomRightLat, double bottomRightLon) {
+<b class="fc"><i class="no-highlight">487</i>&nbsp;        boolean isEven = true;</b>
+<b class="fc"><i class="no-highlight">488</i>&nbsp;        double minLat = -90.0, maxLat = 90;</b>
+<b class="fc"><i class="no-highlight">489</i>&nbsp;        double minLon = -180.0, maxLon = 180.0;</b>
+<i class="no-highlight">490</i>&nbsp;
+<b class="fc"><i class="no-highlight">491</i>&nbsp;        for (int bits = 0; bits &lt; MAX_HASH_LENGTH * 5; bits++) {</b>
+<b class="fc"><i class="no-highlight">492</i>&nbsp;            if (isEven) {</b>
+<b class="fc"><i class="no-highlight">493</i>&nbsp;                double mid = (minLon + maxLon) / 2;</b>
+<b class="fc"><i class="no-highlight">494</i>&nbsp;                if (topLeftLon &gt;= mid) {</b>
+<b class="fc"><i class="no-highlight">495</i>&nbsp;                    if (bottomRightLon &lt; mid)</b>
+<b class="fc"><i class="no-highlight">496</i>&nbsp;                        return bits / 5;</b>
+<b class="fc"><i class="no-highlight">497</i>&nbsp;                    minLon = mid;</b>
+<i class="no-highlight">498</i>&nbsp;                } else {
+<b class="fc"><i class="no-highlight">499</i>&nbsp;                    if (bottomRightLon &gt;= mid)</b>
+<b class="nc"><i class="no-highlight">500</i>&nbsp;                        return bits / 5;</b>
+<b class="fc"><i class="no-highlight">501</i>&nbsp;                    maxLon = mid;</b>
+<i class="no-highlight">502</i>&nbsp;                }
+<b class="fc"><i class="no-highlight">503</i>&nbsp;            } else {</b>
+<b class="fc"><i class="no-highlight">504</i>&nbsp;                double mid = (minLat + maxLat) / 2;</b>
+<b class="fc"><i class="no-highlight">505</i>&nbsp;                if (topLeftLat &gt;= mid) {</b>
+<b class="fc"><i class="no-highlight">506</i>&nbsp;                    if (bottomRightLat &lt; mid)</b>
+<b class="fc"><i class="no-highlight">507</i>&nbsp;                        return bits / 5;</b>
+<b class="fc"><i class="no-highlight">508</i>&nbsp;                    minLat = mid;</b>
+<i class="no-highlight">509</i>&nbsp;                } else {
+<b class="fc"><i class="no-highlight">510</i>&nbsp;                    if (bottomRightLat &gt;= mid)</b>
+<b class="nc"><i class="no-highlight">511</i>&nbsp;                        return bits / 5;</b>
+<b class="fc"><i class="no-highlight">512</i>&nbsp;                    maxLat = mid;</b>
+<i class="no-highlight">513</i>&nbsp;                }
+<i class="no-highlight">514</i>&nbsp;            }
+<i class="no-highlight">515</i>&nbsp;
+<b class="fc"><i class="no-highlight">516</i>&nbsp;            isEven = !isEven;</b>
+<i class="no-highlight">517</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">518</i>&nbsp;        return MAX_HASH_LENGTH;</b>
+<i class="no-highlight">519</i>&nbsp;    }
+<i class="no-highlight">520</i>&nbsp;
+<i class="no-highlight">521</i>&nbsp;    /**
+<i class="no-highlight">522</i>&nbsp;     * Returns true if and only if the bounding box corresponding to the hash
+<i class="no-highlight">523</i>&nbsp;     * contains the given lat and long.
+<i class="no-highlight">524</i>&nbsp;     * 
+<i class="no-highlight">525</i>&nbsp;     * @param hash
+<i class="no-highlight">526</i>&nbsp;     *            hash to test containment in
+<i class="no-highlight">527</i>&nbsp;     * @param lat
+<i class="no-highlight">528</i>&nbsp;     *            latitude
+<i class="no-highlight">529</i>&nbsp;     * @param lon
+<i class="no-highlight">530</i>&nbsp;     *            longitude
+<i class="no-highlight">531</i>&nbsp;     * @return true if and only if the hash contains the given lat and long
+<i class="no-highlight">532</i>&nbsp;     */
+<i class="no-highlight">533</i>&nbsp;    public static boolean hashContains(String hash, double lat, double lon) {
+<b class="fc"><i class="no-highlight">534</i>&nbsp;        LatLong centre = decodeHash(hash);</b>
+<b class="fc"><i class="no-highlight">535</i>&nbsp;        return Math.abs(centre.getLat() - lat) &lt;= heightDegrees(hash.length()) / 2</b>
+<b class="fc"><i class="no-highlight">536</i>&nbsp;                &amp;&amp; Math.abs(to180(centre.getLon() - lon)) &lt;= widthDegrees(hash.length()) / 2;</b>
+<i class="no-highlight">537</i>&nbsp;    }
+<i class="no-highlight">538</i>&nbsp;
+<i class="no-highlight">539</i>&nbsp;    /**
+<i class="no-highlight">540</i>&nbsp;     * Returns the result of coverBoundingBoxMaxHashes with a maxHashes value of
+<i class="no-highlight">541</i>&nbsp;     * {@link GeoHash}.DEFAULT_MAX_HASHES.
+<i class="no-highlight">542</i>&nbsp;     * 
+<i class="no-highlight">543</i>&nbsp;     * @param topLeftLat
+<i class="no-highlight">544</i>&nbsp;     *            latitude of top left point (north west)
+<i class="no-highlight">545</i>&nbsp;     * @param topLeftLon
+<i class="no-highlight">546</i>&nbsp;     *            longitude of top left point (north west)
+<i class="no-highlight">547</i>&nbsp;     * @param bottomRightLat
+<i class="no-highlight">548</i>&nbsp;     *            latitude of bottom right point (south east)
+<i class="no-highlight">549</i>&nbsp;     * @param bottomRightLon
+<i class="no-highlight">550</i>&nbsp;     *            longitude of bottom right point (south east)
+<i class="no-highlight">551</i>&nbsp;     * @return coverage
+<i class="no-highlight">552</i>&nbsp;     */
+<i class="no-highlight">553</i>&nbsp;    public static Coverage coverBoundingBox(double topLeftLat, final double topLeftLon,
+<i class="no-highlight">554</i>&nbsp;            final double bottomRightLat, final double bottomRightLon) {
+<i class="no-highlight">555</i>&nbsp;
+<b class="nc"><i class="no-highlight">556</i>&nbsp;        return coverBoundingBoxMaxHashes(topLeftLat, topLeftLon, bottomRightLat, bottomRightLon,</b>
+<i class="no-highlight">557</i>&nbsp;                DEFAULT_MAX_HASHES);
+<i class="no-highlight">558</i>&nbsp;    }
+<i class="no-highlight">559</i>&nbsp;
+<i class="no-highlight">560</i>&nbsp;    /**
+<i class="no-highlight">561</i>&nbsp;     * Returns the hashes that are required to cover the given bounding box. The
+<i class="no-highlight">562</i>&nbsp;     * maximum length of hash is selected that satisfies the number of hashes
+<i class="no-highlight">563</i>&nbsp;     * returned is less than &lt;code&gt;maxHashes&lt;/code&gt;. Returns null if hashes
+<i class="no-highlight">564</i>&nbsp;     * cannot be found satisfying that condition. Maximum hash length returned
+<i class="no-highlight">565</i>&nbsp;     * will be {@link GeoHash}.MAX_HASH_LENGTH.
+<i class="no-highlight">566</i>&nbsp;     * 
+<i class="no-highlight">567</i>&nbsp;     * @param topLeftLat
+<i class="no-highlight">568</i>&nbsp;     *            latitude of top left point (north west)
+<i class="no-highlight">569</i>&nbsp;     * @param topLeftLon
+<i class="no-highlight">570</i>&nbsp;     *            longitude of top left point (north west)
+<i class="no-highlight">571</i>&nbsp;     * @param bottomRightLat
+<i class="no-highlight">572</i>&nbsp;     *            latitude of bottom right point (south east)
+<i class="no-highlight">573</i>&nbsp;     * @param bottomRightLon
+<i class="no-highlight">574</i>&nbsp;     *            longitude of bottom right point (south east)
+<i class="no-highlight">575</i>&nbsp;     * @param maxHashes
+<i class="no-highlight">576</i>&nbsp;     *            maximum number of hashes to use to cover the box
+<i class="no-highlight">577</i>&nbsp;     * @return coverage
+<i class="no-highlight">578</i>&nbsp;     */
+<i class="no-highlight">579</i>&nbsp;    public static Coverage coverBoundingBoxMaxHashes(double topLeftLat, final double topLeftLon,
+<i class="no-highlight">580</i>&nbsp;            final double bottomRightLat, final double bottomRightLon, int maxHashes) {
+<b class="nc"><i class="no-highlight">581</i>&nbsp;        CoverageLongs coverage = null;</b>
+<b class="nc"><i class="no-highlight">582</i>&nbsp;        int startLength = hashLengthToCoverBoundingBox(topLeftLat, topLeftLon, bottomRightLat,</b>
+<i class="no-highlight">583</i>&nbsp;                bottomRightLon);
+<b class="nc"><i class="no-highlight">584</i>&nbsp;        if (startLength == 0)</b>
+<b class="nc"><i class="no-highlight">585</i>&nbsp;            startLength = 1;</b>
+<b class="nc"><i class="no-highlight">586</i>&nbsp;        for (int length = startLength; length &lt;= MAX_HASH_LENGTH; length++) {</b>
+<b class="nc"><i class="no-highlight">587</i>&nbsp;            CoverageLongs c = coverBoundingBoxLongs(topLeftLat, topLeftLon, bottomRightLat,</b>
+<i class="no-highlight">588</i>&nbsp;                    bottomRightLon, length);
+<b class="nc"><i class="no-highlight">589</i>&nbsp;            if (c.getCount() &gt; maxHashes)</b>
+<b class="nc"><i class="no-highlight">590</i>&nbsp;                return coverage == null ? null : new Coverage(coverage);</b>
+<i class="no-highlight">591</i>&nbsp;            else
+<b class="nc"><i class="no-highlight">592</i>&nbsp;                coverage = c;</b>
+<i class="no-highlight">593</i>&nbsp;        }
+<i class="no-highlight">594</i>&nbsp;        // note coverage can never be null
+<b class="nc"><i class="no-highlight">595</i>&nbsp;        return new Coverage(coverage);</b>
+<i class="no-highlight">596</i>&nbsp;    }
+<i class="no-highlight">597</i>&nbsp;
+<i class="no-highlight">598</i>&nbsp;    /**
+<i class="no-highlight">599</i>&nbsp;     * Returns the hashes of given length that are required to cover the given
+<i class="no-highlight">600</i>&nbsp;     * bounding box.
+<i class="no-highlight">601</i>&nbsp;     * 
+<i class="no-highlight">602</i>&nbsp;     * @param topLeftLat
+<i class="no-highlight">603</i>&nbsp;     *            latitude of top left point (north west)
+<i class="no-highlight">604</i>&nbsp;     * @param topLeftLon
+<i class="no-highlight">605</i>&nbsp;     *            longitude of top left point (north west)
+<i class="no-highlight">606</i>&nbsp;     * @param bottomRightLat
+<i class="no-highlight">607</i>&nbsp;     *            latitude of bottom right point (south east)
+<i class="no-highlight">608</i>&nbsp;     * @param bottomRightLon
+<i class="no-highlight">609</i>&nbsp;     *            longitude of bottom right point (south east)
+<i class="no-highlight">610</i>&nbsp;     * @param length
+<i class="no-highlight">611</i>&nbsp;     *            of hash
+<i class="no-highlight">612</i>&nbsp;     * @return number of hashes of given length required to cover the given
+<i class="no-highlight">613</i>&nbsp;     *         bounding box
+<i class="no-highlight">614</i>&nbsp;     */
+<i class="no-highlight">615</i>&nbsp;    public static Coverage coverBoundingBox(double topLeftLat, final double topLeftLon,
+<i class="no-highlight">616</i>&nbsp;            final double bottomRightLat, final double bottomRightLon, final int length) {
+<b class="nc"><i class="no-highlight">617</i>&nbsp;        return new Coverage(coverBoundingBoxLongs(topLeftLat, topLeftLon, bottomRightLat,</b>
+<i class="no-highlight">618</i>&nbsp;                bottomRightLon, length));
+<i class="no-highlight">619</i>&nbsp;    }
+<i class="no-highlight">620</i>&nbsp;
+<b class="nc"><i class="no-highlight">621</i>&nbsp;    private static class LongSet {</b>
+<b class="nc"><i class="no-highlight">622</i>&nbsp;        int count = 0;</b>
+<b class="nc"><i class="no-highlight">623</i>&nbsp;        private int cap = 16;</b>
+<b class="nc"><i class="no-highlight">624</i>&nbsp;        long[] array = new long[cap];</b>
+<i class="no-highlight">625</i>&nbsp;
+<i class="no-highlight">626</i>&nbsp;        void add(long l) {
+<b class="nc"><i class="no-highlight">627</i>&nbsp;            for (int i = 0; i &lt; count; i++)</b>
+<b class="nc"><i class="no-highlight">628</i>&nbsp;                if (array[i] == l)</b>
+<i class="no-highlight">629</i>&nbsp;                    return;
+<b class="nc"><i class="no-highlight">630</i>&nbsp;            if (count == cap) {</b>
+<b class="nc"><i class="no-highlight">631</i>&nbsp;                long[] newArray = new long[cap *= 2];</b>
+<b class="nc"><i class="no-highlight">632</i>&nbsp;                System.arraycopy(array, 0, newArray, 0, count);</b>
+<b class="nc"><i class="no-highlight">633</i>&nbsp;                array = newArray;</b>
+<i class="no-highlight">634</i>&nbsp;            }
+<b class="nc"><i class="no-highlight">635</i>&nbsp;            array[count++] = l;</b>
+<i class="no-highlight">636</i>&nbsp;        }
+<i class="no-highlight">637</i>&nbsp;    }
+<i class="no-highlight">638</i>&nbsp;
+<i class="no-highlight">639</i>&nbsp;    static CoverageLongs coverBoundingBoxLongs(double topLeftLat, final double topLeftLon,
+<i class="no-highlight">640</i>&nbsp;            final double bottomRightLat, final double bottomRightLon, final int length) {
+<b class="nc"><i class="no-highlight">641</i>&nbsp;        Preconditions.checkArgument(topLeftLat &gt;= bottomRightLat,</b>
+<i class="no-highlight">642</i>&nbsp;                &quot;topLeftLat must be &gt;= bottomRighLat&quot;);
+<b class="nc"><i class="no-highlight">643</i>&nbsp;        Preconditions.checkArgument(topLeftLon &lt;= bottomRightLon,</b>
+<i class="no-highlight">644</i>&nbsp;                &quot;topLeftLon must be &lt;= bottomRighLon&quot;);
+<b class="nc"><i class="no-highlight">645</i>&nbsp;        Preconditions.checkArgument(length &gt; 0, &quot;length must be greater than zero&quot;);</b>
+<b class="nc"><i class="no-highlight">646</i>&nbsp;        final double actualWidthDegreesPerHash = widthDegrees(length);</b>
+<b class="nc"><i class="no-highlight">647</i>&nbsp;        final double actualHeightDegreesPerHash = heightDegrees(length);</b>
+<i class="no-highlight">648</i>&nbsp;
+<b class="nc"><i class="no-highlight">649</i>&nbsp;        LongSet hashes = new LongSet();</b>
+<i class="no-highlight">650</i>&nbsp;
+<b class="nc"><i class="no-highlight">651</i>&nbsp;        double diff = Position.longitudeDiff(bottomRightLon, topLeftLon);</b>
+<b class="nc"><i class="no-highlight">652</i>&nbsp;        double maxLon = topLeftLon + diff;</b>
+<i class="no-highlight">653</i>&nbsp;
+<b class="nc"><i class="no-highlight">654</i>&nbsp;        for (double lat = bottomRightLat; lat &lt;= topLeftLat; lat += actualHeightDegreesPerHash) {</b>
+<b class="nc"><i class="no-highlight">655</i>&nbsp;            for (double lon = topLeftLon; lon &lt;= maxLon; lon += actualWidthDegreesPerHash) {</b>
+<b class="nc"><i class="no-highlight">656</i>&nbsp;                hashes.add(encodeHashToLong(lat, lon, length));</b>
+<i class="no-highlight">657</i>&nbsp;            }
+<i class="no-highlight">658</i>&nbsp;        }
+<i class="no-highlight">659</i>&nbsp;        // ensure have the borders covered
+<b class="nc"><i class="no-highlight">660</i>&nbsp;        for (double lat = bottomRightLat; lat &lt;= topLeftLat; lat += actualHeightDegreesPerHash) {</b>
+<b class="nc"><i class="no-highlight">661</i>&nbsp;            hashes.add(encodeHashToLong(lat, maxLon, length));</b>
+<i class="no-highlight">662</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">663</i>&nbsp;        for (double lon = topLeftLon; lon &lt;= maxLon; lon += actualWidthDegreesPerHash) {</b>
+<b class="nc"><i class="no-highlight">664</i>&nbsp;            hashes.add(encodeHashToLong(topLeftLat, lon, length));</b>
+<i class="no-highlight">665</i>&nbsp;        }
+<i class="no-highlight">666</i>&nbsp;        // ensure that the topRight corner is covered
+<b class="nc"><i class="no-highlight">667</i>&nbsp;        hashes.add(encodeHashToLong(topLeftLat, maxLon, length));</b>
+<i class="no-highlight">668</i>&nbsp;
+<b class="nc"><i class="no-highlight">669</i>&nbsp;        double areaDegrees = diff * (topLeftLat - bottomRightLat);</b>
+<b class="nc"><i class="no-highlight">670</i>&nbsp;        double coverageAreaDegrees = hashes.count * widthDegrees(length) * heightDegrees(length);</b>
+<b class="nc"><i class="no-highlight">671</i>&nbsp;        double ratio = coverageAreaDegrees / areaDegrees;</b>
+<b class="nc"><i class="no-highlight">672</i>&nbsp;        return new CoverageLongs(hashes.array, hashes.count, ratio);</b>
+<i class="no-highlight">673</i>&nbsp;    }
+<i class="no-highlight">674</i>&nbsp;
+<i class="no-highlight">675</i>&nbsp;    /**
+<i class="no-highlight">676</i>&nbsp;     * Returns height in degrees of all geohashes of length {@code n}. Results are
+<i class="no-highlight">677</i>&nbsp;     * deterministic and cached to increase performance.
+<i class="no-highlight">678</i>&nbsp;     * 
+<i class="no-highlight">679</i>&nbsp;     * @param n
+<i class="no-highlight">680</i>&nbsp;     *            length of geohash
+<i class="no-highlight">681</i>&nbsp;     * @return height in degrees of the geohash with length {@code n}
+<i class="no-highlight">682</i>&nbsp;     */
+<i class="no-highlight">683</i>&nbsp;    public static double heightDegrees(int n) {
+<b class="fc"><i class="no-highlight">684</i>&nbsp;        if (n &gt; MAX_HASH_LENGTH)</b>
+<b class="nc"><i class="no-highlight">685</i>&nbsp;            return calculateHeightDegrees(n);</b>
+<i class="no-highlight">686</i>&nbsp;        else
+<b class="fc"><i class="no-highlight">687</i>&nbsp;            return HashHeights.values[n];</b>
+<i class="no-highlight">688</i>&nbsp;    }
+<i class="no-highlight">689</i>&nbsp;
+<i class="no-highlight">690</i>&nbsp;    private static final class HashHeights {
+<i class="no-highlight">691</i>&nbsp;
+<b class="fc"><i class="no-highlight">692</i>&nbsp;        static final double[] values = createValues();</b>
+<i class="no-highlight">693</i>&nbsp;
+<i class="no-highlight">694</i>&nbsp;        private static double[] createValues() {
+<b class="fc"><i class="no-highlight">695</i>&nbsp;            double d[] = new double[MAX_HASH_LENGTH + 1];</b>
+<b class="fc"><i class="no-highlight">696</i>&nbsp;            for (int i = 0; i &lt;= MAX_HASH_LENGTH; i++) {</b>
+<b class="fc"><i class="no-highlight">697</i>&nbsp;                d[i] = calculateHeightDegrees(i);</b>
+<i class="no-highlight">698</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">699</i>&nbsp;            return d;</b>
+<i class="no-highlight">700</i>&nbsp;        }
+<i class="no-highlight">701</i>&nbsp;    }
+<i class="no-highlight">702</i>&nbsp;
+<i class="no-highlight">703</i>&nbsp;    /**
+<i class="no-highlight">704</i>&nbsp;     * Returns the height in degrees of the region represented by a geohash of
+<i class="no-highlight">705</i>&nbsp;     * length {@code n}.
+<i class="no-highlight">706</i>&nbsp;     * 
+<i class="no-highlight">707</i>&nbsp;     * @param n length of hash
+<i class="no-highlight">708</i>&nbsp;     * @return height in degrees of the region represented by a geohash of length {@code n}
+<i class="no-highlight">709</i>&nbsp;     */
+<i class="no-highlight">710</i>&nbsp;    private static double calculateHeightDegrees(int n) {
+<i class="no-highlight">711</i>&nbsp;        double a;
+<b class="fc"><i class="no-highlight">712</i>&nbsp;        if (n % 2 == 0)</b>
+<b class="fc"><i class="no-highlight">713</i>&nbsp;            a = 0;</b>
+<i class="no-highlight">714</i>&nbsp;        else
+<b class="fc"><i class="no-highlight">715</i>&nbsp;            a = -0.5;</b>
+<b class="fc"><i class="no-highlight">716</i>&nbsp;        double result = 180 / Math.pow(2, 2.5 * n + a);</b>
+<b class="fc"><i class="no-highlight">717</i>&nbsp;        return result;</b>
+<i class="no-highlight">718</i>&nbsp;    }
+<i class="no-highlight">719</i>&nbsp;
+<i class="no-highlight">720</i>&nbsp;    private static final class HashWidths {
+<i class="no-highlight">721</i>&nbsp;
+<b class="fc"><i class="no-highlight">722</i>&nbsp;        static final double[] values = createValues();</b>
+<i class="no-highlight">723</i>&nbsp;
+<i class="no-highlight">724</i>&nbsp;        private static double[] createValues() {
+<b class="fc"><i class="no-highlight">725</i>&nbsp;            double d[] = new double[MAX_HASH_LENGTH + 1];</b>
+<b class="fc"><i class="no-highlight">726</i>&nbsp;            for (int i = 0; i &lt;= MAX_HASH_LENGTH; i++) {</b>
+<b class="fc"><i class="no-highlight">727</i>&nbsp;                d[i] = calculateWidthDegrees(i);</b>
+<i class="no-highlight">728</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">729</i>&nbsp;            return d;</b>
+<i class="no-highlight">730</i>&nbsp;        }
+<i class="no-highlight">731</i>&nbsp;    }
+<i class="no-highlight">732</i>&nbsp;
+<i class="no-highlight">733</i>&nbsp;    /**
+<i class="no-highlight">734</i>&nbsp;     * Returns width in degrees of all geohashes of length n. Results are
+<i class="no-highlight">735</i>&nbsp;     * deterministic and cached to increase performance (might be unnecessary,
+<i class="no-highlight">736</i>&nbsp;     * have not benchmarked).
+<i class="no-highlight">737</i>&nbsp;     * 
+<i class="no-highlight">738</i>&nbsp;     * @param n length of hash
+<i class="no-highlight">739</i>&nbsp;     * @return width in degrees
+<i class="no-highlight">740</i>&nbsp;     */
+<i class="no-highlight">741</i>&nbsp;    public static double widthDegrees(int n) {
+<b class="fc"><i class="no-highlight">742</i>&nbsp;        if (n &gt; MAX_HASH_LENGTH)</b>
+<b class="nc"><i class="no-highlight">743</i>&nbsp;            return calculateWidthDegrees(n);</b>
+<i class="no-highlight">744</i>&nbsp;        else
+<b class="fc"><i class="no-highlight">745</i>&nbsp;            return HashWidths.values[n];</b>
+<i class="no-highlight">746</i>&nbsp;    }
+<i class="no-highlight">747</i>&nbsp;
+<i class="no-highlight">748</i>&nbsp;    /**
+<i class="no-highlight">749</i>&nbsp;     * Returns the width in degrees of the region represented by a geohash of
+<i class="no-highlight">750</i>&nbsp;     * length n.
+<i class="no-highlight">751</i>&nbsp;     * 
+<i class="no-highlight">752</i>&nbsp;     * @param n length of geohash
+<i class="no-highlight">753</i>&nbsp;     * @return width in degrees
+<i class="no-highlight">754</i>&nbsp;     */
+<i class="no-highlight">755</i>&nbsp;    private static double calculateWidthDegrees(int n) {
+<i class="no-highlight">756</i>&nbsp;        double a;
+<b class="fc"><i class="no-highlight">757</i>&nbsp;        if (n % 2 == 0)</b>
+<b class="fc"><i class="no-highlight">758</i>&nbsp;            a = -1;</b>
+<i class="no-highlight">759</i>&nbsp;        else
+<b class="fc"><i class="no-highlight">760</i>&nbsp;            a = -0.5;</b>
+<b class="fc"><i class="no-highlight">761</i>&nbsp;        double result = 180 / Math.pow(2, 2.5 * n + a);</b>
+<b class="fc"><i class="no-highlight">762</i>&nbsp;        return result;</b>
+<i class="no-highlight">763</i>&nbsp;    }
+<i class="no-highlight">764</i>&nbsp;
+<i class="no-highlight">765</i>&nbsp;    /**
+<i class="no-highlight">766</i>&nbsp;     * &lt;p&gt;
+<i class="no-highlight">767</i>&nbsp;     * Returns a String of lines of hashes to represent the relative positions
+<i class="no-highlight">768</i>&nbsp;     * of hashes on a map. The grid is of height and width 2*size centred around
+<i class="no-highlight">769</i>&nbsp;     * the given hash. Highlighted hashes are displayed in upper case. For
+<i class="no-highlight">770</i>&nbsp;     * example, gridToString(&quot;dr&quot;,1,Collections.&amp;lt;String&amp;gt;emptySet()) returns:
+<i class="no-highlight">771</i>&nbsp;     * &lt;/p&gt;
+<i class="no-highlight">772</i>&nbsp;     * 
+<i class="no-highlight">773</i>&nbsp;     * &lt;pre&gt;
+<i class="no-highlight">774</i>&nbsp;     * f0 f2 f8 
+<i class="no-highlight">775</i>&nbsp;     * dp dr dx 
+<i class="no-highlight">776</i>&nbsp;     * dn dq dw
+<i class="no-highlight">777</i>&nbsp;     * &lt;/pre&gt;
+<i class="no-highlight">778</i>&nbsp;     * 
+<i class="no-highlight">779</i>&nbsp;     * @param hash central hash
+<i class="no-highlight">780</i>&nbsp;     * @param size size of square grid in hashes
+<i class="no-highlight">781</i>&nbsp;     * @param highlightThese hashes to highlight
+<i class="no-highlight">782</i>&nbsp;     * @return String representation of grid
+<i class="no-highlight">783</i>&nbsp;     */
+<i class="no-highlight">784</i>&nbsp;    public static String gridAsString(String hash, int size, Set&lt;String&gt; highlightThese) {
+<b class="nc"><i class="no-highlight">785</i>&nbsp;        return gridAsString(hash, -size, -size, size, size, highlightThese);</b>
+<i class="no-highlight">786</i>&nbsp;    }
+<i class="no-highlight">787</i>&nbsp;
+<i class="no-highlight">788</i>&nbsp;    /**
+<i class="no-highlight">789</i>&nbsp;     * Returns a String of lines of hashes to represent the relative positions
+<i class="no-highlight">790</i>&nbsp;     * of hashes on a map.
+<i class="no-highlight">791</i>&nbsp;     * 
+<i class="no-highlight">792</i>&nbsp;     * @param hash reference hash
+<i class="no-highlight">793</i>&nbsp;     * @param fromRight
+<i class="no-highlight">794</i>&nbsp;     *            top left of the grid in hashes to the right (can be negative).
+<i class="no-highlight">795</i>&nbsp;     * @param fromBottom
+<i class="no-highlight">796</i>&nbsp;     *            top left of the grid in hashes to the bottom (can be
+<i class="no-highlight">797</i>&nbsp;     *            negative).
+<i class="no-highlight">798</i>&nbsp;     * @param toRight
+<i class="no-highlight">799</i>&nbsp;     *            bottom righth of the grid in hashes to the bottom (can be
+<i class="no-highlight">800</i>&nbsp;     *            negative).
+<i class="no-highlight">801</i>&nbsp;     * @param toBottom
+<i class="no-highlight">802</i>&nbsp;     *            bottom right of the grid in hashes to the bottom (can be
+<i class="no-highlight">803</i>&nbsp;     *            negative).
+<i class="no-highlight">804</i>&nbsp;     * @return string representation of grid
+<i class="no-highlight">805</i>&nbsp;     */
+<i class="no-highlight">806</i>&nbsp;    public static String gridAsString(String hash, int fromRight, int fromBottom, int toRight,
+<i class="no-highlight">807</i>&nbsp;            int toBottom) {
+<b class="nc"><i class="no-highlight">808</i>&nbsp;        return gridAsString(hash, fromRight, fromBottom, toRight, toBottom,</b>
+<b class="nc"><i class="no-highlight">809</i>&nbsp;                Collections.&lt;String&gt; emptySet());</b>
+<i class="no-highlight">810</i>&nbsp;    }
+<i class="no-highlight">811</i>&nbsp;
+<i class="no-highlight">812</i>&nbsp;    /**
+<i class="no-highlight">813</i>&nbsp;     * &lt;p&gt;Returns a String of lines of hashes to represent the relative positions
+<i class="no-highlight">814</i>&nbsp;     * of hashes on a map. Highlighted hashes are displayed in upper case. For
+<i class="no-highlight">815</i>&nbsp;     * example, gridToString(&quot;dr&quot;,-1,-1,1,1,Sets.newHashSet(&quot;f2&quot;,&quot;f8&quot;)) returns:
+<i class="no-highlight">816</i>&nbsp;     * &lt;/p&gt;
+<i class="no-highlight">817</i>&nbsp;     * 
+<i class="no-highlight">818</i>&nbsp;     * &lt;pre&gt;
+<i class="no-highlight">819</i>&nbsp;     * f0 F2 F8 
+<i class="no-highlight">820</i>&nbsp;     * dp dr dx 
+<i class="no-highlight">821</i>&nbsp;     * dn dq dw
+<i class="no-highlight">822</i>&nbsp;     * &lt;/pre&gt;
+<i class="no-highlight">823</i>&nbsp;     * 
+<i class="no-highlight">824</i>&nbsp;     * @param hash reference hash
+<i class="no-highlight">825</i>&nbsp;     * @param fromRight
+<i class="no-highlight">826</i>&nbsp;     *            top left of the grid in hashes to the right (can be negative).
+<i class="no-highlight">827</i>&nbsp;     * @param fromBottom
+<i class="no-highlight">828</i>&nbsp;     *            top left of the grid in hashes to the bottom (can be
+<i class="no-highlight">829</i>&nbsp;     *            negative).
+<i class="no-highlight">830</i>&nbsp;     * @param toRight
+<i class="no-highlight">831</i>&nbsp;     *            bottom righth of the grid in hashes to the bottom (can be
+<i class="no-highlight">832</i>&nbsp;     *            negative).
+<i class="no-highlight">833</i>&nbsp;     * @param toBottom
+<i class="no-highlight">834</i>&nbsp;     *            bottom right of the grid in hashes to the bottom (can be
+<i class="no-highlight">835</i>&nbsp;     *            negative).
+<i class="no-highlight">836</i>&nbsp;     * @param highlightThese hashes to highlight
+<i class="no-highlight">837</i>&nbsp;     * @return String representation of grid
+<i class="no-highlight">838</i>&nbsp;     */
+<i class="no-highlight">839</i>&nbsp;    public static String gridAsString(String hash, int fromRight, int fromBottom, int toRight,
+<i class="no-highlight">840</i>&nbsp;            int toBottom, Set&lt;String&gt; highlightThese) {
+<b class="nc"><i class="no-highlight">841</i>&nbsp;        StringBuilder s = new StringBuilder();</b>
+<b class="nc"><i class="no-highlight">842</i>&nbsp;        for (int bottom = fromBottom; bottom &lt;= toBottom; bottom++) {</b>
+<b class="nc"><i class="no-highlight">843</i>&nbsp;            for (int right = fromRight; right &lt;= toRight; right++) {</b>
+<b class="nc"><i class="no-highlight">844</i>&nbsp;                String h = adjacentHash(hash, Direction.RIGHT, right);</b>
+<b class="nc"><i class="no-highlight">845</i>&nbsp;                h = adjacentHash(h, Direction.BOTTOM, bottom);</b>
+<b class="nc"><i class="no-highlight">846</i>&nbsp;                if (highlightThese.contains(h))</b>
+<b class="nc"><i class="no-highlight">847</i>&nbsp;                    h = h.toUpperCase();</b>
+<b class="nc"><i class="no-highlight">848</i>&nbsp;                s.append(h).append(&quot; &quot;);</b>
+<i class="no-highlight">849</i>&nbsp;            }
+<b class="nc"><i class="no-highlight">850</i>&nbsp;            s.append(&quot;\n&quot;);</b>
+<i class="no-highlight">851</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">852</i>&nbsp;        return s.toString();</b>
+<i class="no-highlight">853</i>&nbsp;    }
+<i class="no-highlight">854</i>&nbsp;
+<i class="no-highlight">855</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-03-13 01:13</div>
+</div>
+</body>
+</html>
