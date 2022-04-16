@@ -29,9 +29,39 @@ public class Base32Test {
         assertEquals("000000000fyw", encode);
     }
     @Test
+    public void EncodeBase32T1() throws Exception {
+        String encode = Base32.encodeBase32(-32);
+        assertEquals("-000000000010", encode);
+    }
+    @Test
+    public void EncodeBase32T2() throws Exception {
+        String encode = Base32.encodeBase32(-15);
+        assertEquals("-00000000000g", encode);
+    }
+    @Test
+    public void EncodeBase32T3() throws Exception {
+        String encode = Base32.encodeBase32(0);
+        assertEquals("000000000000", encode);
+    }
+    @Test
+    public void EncodeBase32WithTwoParametersT1() throws Exception {
+        String encode = Base32.encodeBase32(-33, 5);
+        assertEquals("-00011", encode);
+    }
+    @Test
+    public void EncodeBase32WithTwoParametersT4() throws Exception {
+        String encode = Base32.encodeBase32(-15, 5);
+        assertEquals("-0000g", encode);
+    }
+    @Test
+    public void EncodeBase32WithTwoParametersT7() throws Exception {
+        String encode = Base32.encodeBase32(1, 4);
+        assertEquals("0001", encode);
+    }
+
+    @Test
     public void testDecodeBase32(){
         assertEquals(75324,Base32.decodeBase32("29jw"));
-
     }
 }
 
