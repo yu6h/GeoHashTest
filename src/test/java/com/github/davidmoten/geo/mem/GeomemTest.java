@@ -2,6 +2,8 @@ package com.github.davidmoten.geo.mem;
 
 import org.junit.Test;
 
+import java.util.Optional;
+
 import static org.junit.Assert.*;
 
 public class GeomemTest {
@@ -20,5 +22,4 @@ public class GeomemTest {
         Geomem<Integer, String> geomem = new Geomem<Integer, String>();
         geomem.add(60,188,1,1);
     }
-
 }
