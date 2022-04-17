@@ -47,10 +47,11 @@ public class GeoHashTest {
         GeoHash.encodeHash(
                 -91, 110.5);
     }
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void encodeHashT3() {//4
+        assertEquals("8h89nf0hm8w1",
         GeoHash.encodeHash(
-                25.5, 181);
+                25.5, 181));
     }
     @Test
     public void encodeHashWithLatLoneAsParameterT1() {//4
@@ -108,9 +109,10 @@ public class GeoHashTest {
     public void encodeHashWith3ParametersT2() {
         GeoHash.encodeHash(-60.5, 121.8,0);
     }
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void encodeHashWith3ParametersT3() {//4
-        GeoHash.encodeHash(-60.5, -181,1);
+        assertEquals("p",
+        GeoHash.encodeHash(-60.5, -181,1));
     }
     @Test(expected = IllegalArgumentException.class)
     public void encodeHashWith3ParametersT4() {//4
