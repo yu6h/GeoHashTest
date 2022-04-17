@@ -63,6 +63,18 @@ public class Base32Test {
     public void testDecodeBase32(){
         assertEquals(75324,Base32.decodeBase32("29jw"));
     }
+    @Test
+    public void testDecodeBase32T1(){
+        assertEquals(-75324,Base32.decodeBase32("-29jw"));
+    }
+    @Test
+    public void testDecodeBase32T2(){
+        assertEquals(1234567,Base32.decodeBase32("15pn7"));
+    }
+    @Test(expected = NullPointerException.class)
+    public void testDecodeBase32T3(){
+        Base32.decodeBase32(null);
+    }
 }
 
 

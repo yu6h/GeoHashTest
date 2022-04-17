@@ -37,6 +37,87 @@ public class GeoHashTest {
                         25.033821717782278, 121.56459135583758),4));
     }
     @Test
+    public void encodeHashT1() {//4
+        assertEquals("wkw946psk8ec",
+                GeoHash.encodeHash(
+                        25.5, 110.5));
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void encodeHashT2() {//4
+        GeoHash.encodeHash(
+                -91, 110.5);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void encodeHashT3() {//4
+        GeoHash.encodeHash(
+                25.5, 181);
+    }
+    @Test
+    public void encodeHashWithLatLoneAsParameterT1() {//4
+        assertEquals("eux314pu629c",
+                GeoHash.encodeHash(new LatLong(
+                        25.5, -1)));
+    }
+    @Test
+    public void encodeHashWithLatLoneAsParameterT2() {//4
+        assertEquals("sh81040h2081",
+                GeoHash.encodeHash(new LatLong(
+                        25.5, 0)));
+
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void encodeHashWithLatLoneAsParameterT3(){//4
+                GeoHash.encodeHash(new LatLong(
+                        -91, 200));
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void encodeHashWithLatLoneAsParameterT4(){//4
+        GeoHash.encodeHash(new LatLong(
+                91, 20));
+    }
+    @Test
+    public void encodeHashWithLatLoneAndLengthAsParameterT1() {//4
+        assertEquals("eux31",
+                GeoHash.encodeHash(new LatLong(
+                        25.5, -1),5));
+    }
+    @Test
+    public void encodeHashWithLatLoneAndLengthAsParameterT3() {
+        assertEquals("sh81040h20",
+                GeoHash.encodeHash(new LatLong(
+                        25.5, 0),10));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void encodeHashWithLatLoneAndLengthAsParameterT5() {
+                GeoHash.encodeHash(new LatLong(
+                        -91, -150),10);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void encodeHashWithLatLoneAndLengthAsParameterT7() {
+        GeoHash.encodeHash(new LatLong(
+                -91, 150),10);
+    }
+    @Test
+    public void encodeHashWith3ParametersT1() {
+        assertEquals("n",
+                GeoHash.encodeHash(
+                        -60.5, 121.8,1));
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void encodeHashWith3ParametersT2() {
+        GeoHash.encodeHash(-60.5, 121.8,0);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void encodeHashWith3ParametersT3() {//4
+        GeoHash.encodeHash(-60.5, -181,1);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void encodeHashWith3ParametersT4() {//4
+        GeoHash.encodeHash(-91, 121.8,1);
+    }
+
+    @Test
     public void hasContains(){//1
         assertTrue(GeoHash.hashContains("wsqqqm28s",
                 25.0338077545166, 121.564621925354));
@@ -55,12 +136,56 @@ public class GeoHashTest {
         assertFalse(GeoHash.hashContains("wsqqqm28s",
                 25.0338077545166, 120.56457901000977));
     }
+    @Test(expected = NullPointerException.class)
+    public void hasContainsT1(){//1
+        assertTrue(GeoHash.hashContains(null,
+                25.5, 122.2));
+    }
+    @Test(expected = NullPointerException.class)
+    public void hasContainsT2(){//1
+        assertTrue(GeoHash.hashContains(null,
+                25.5, -181));
+    }
+    @Test(expected = NullPointerException.class)
+    public void hasContainsT3(){//1
+        assertTrue(GeoHash.hashContains(null,
+                25.5, 122));
+    }
+    @Test
+    public void hasContainsT4(){//1
+        assertTrue(GeoHash.hashContains("wsqqqm28",
+                25.03380775, 121.56457901));
+    }
     @Test
     public void adjacentHash(){//2
         assertEquals("wsqqhp8hk1mp",
                 GeoHash.adjacentHash("wsqqhp8hk1mn",Direction.TOP));
         assertEquals("wsqqhp8hk1t1",
                 GeoHash.adjacentHash("wsqqhp8hk1mn",Direction.TOP,3));
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void adjacentHashT1(){//2
+                GeoHash.adjacentHash(null,Direction.BOTTOM);
+    }
+    @Test
+    public void adjacentHashT5(){//2
+        assertEquals("yenm",
+        GeoHash.adjacentHash("yenq",Direction.BOTTOM));
+    }
+    @Test
+    public void adjacentHashT6(){//2
+        assertEquals("1338",
+                GeoHash.adjacentHash("131x",Direction.TOP));
+    }
+    @Test
+    public void adjacentHashT7(){//2
+        assertEquals("h1gq",
+                GeoHash.adjacentHash("h1gw",Direction.LEFT));
+    }
+    @Test
+    public void adjacentHashT8(){//2
+        assertEquals("23y2",
+                GeoHash.adjacentHash("23y0",Direction.RIGHT));
     }
     @Test
     public void right(){
