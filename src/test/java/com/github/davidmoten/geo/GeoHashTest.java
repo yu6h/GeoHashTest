@@ -1,11 +1,13 @@
 package com.github.davidmoten.geo;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import com.google.common.collect.Sets;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -36,6 +38,10 @@ public class GeoHashTest {
                 GeoHash.encodeHash(new LatLong(
                         25.033821717782278, 121.56459135583758),4));
     }
+//    @Test
+//    public void heightDegrees(){
+//        assertEquals(0.0,);
+//    }
     @Test
     public void encodeHashT1() {//4
         assertEquals("wkw946psk8ec",
@@ -189,6 +195,25 @@ public class GeoHashTest {
         assertEquals("23y2",
                 GeoHash.adjacentHash("23y0",Direction.RIGHT));
     }
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
+    @Test
+    public void fromLongToStringT1(){
+        exceptionRule.expect(IllegalArgumentException.class);
+        exceptionRule.expectMessage("invalid long geohash "+0);
+        GeoHash.fromLongToString(0);
+    }
+    @Test
+    public void fromLongToStringT2(){
+        exceptionRule.expect(IllegalArgumentException.class);
+        exceptionRule.expectMessage("invalid long geohash "+13);
+        GeoHash.fromLongToString(13);
+    }
+    @Test
+    public void fromLongToStringT3(){
+        assertEquals("0",GeoHash.fromLongToString(1));
+    }
     @Test
     public void right(){
         assertEquals("wsqqhjwyuveh",
@@ -227,4 +252,21 @@ public class GeoHashTest {
                         "wsqqhjwyuvej", "wsqqhjwyuve5");
         assertTrue(list.equals(GeoHash.neighbours("wsqqhjwyuvdu")));
     }
+    @Test
+    public void gridAsStringT1(){
+        Assert.assertEquals("",GeoHash.gridAsString("dr",0,1,0,0, Sets.newHashSet("dr")));
+    }
+    @Test
+    public void gridAsStringT2(){
+        Assert.assertEquals("\n",GeoHash.gridAsString("dr",1,0,0,0, Sets.newHashSet("dr")));
+    }
+    @Test
+    public void gridAsStringT3(){
+        Assert.assertEquals("dr \n",GeoHash.gridAsString("dr",0,0,0,0, Sets.newHashSet("d")));
+    }
+    @Test
+    public void gridAsStringT4(){
+        Assert.assertEquals("DR \n",GeoHash.gridAsString("dr",0,0,0,0, Sets.newHashSet("dr")));
+    }
+
 }
