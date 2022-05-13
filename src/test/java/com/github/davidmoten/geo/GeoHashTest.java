@@ -38,10 +38,16 @@ public class GeoHashTest {
                 GeoHash.encodeHash(new LatLong(
                         25.033821717782278, 121.56459135583758),4));
     }
-//    @Test
-//    public void heightDegrees(){
-//        assertEquals(0.0,);
-//    }
+    @Test
+    public void heightDegreesT1(){
+        GeoHash.heightDegrees(13);
+        assertEquals(0.0,GeoHash.heightDegrees(13),0.01);
+    }
+    @Test
+    public void heightDegreesT2(){
+        GeoHash.heightDegrees(12);
+        assertEquals(0.0,GeoHash.heightDegrees(12),0.01);
+    }
     @Test
     public void encodeHashT1() {//4
         assertEquals("wkw946psk8ec",
