@@ -179,7 +179,7 @@ public class GeoHashTest {
     }
     @Test(expected = IllegalArgumentException.class)
     public void adjacentHashT1(){//2
-                GeoHash.adjacentHash(null,Direction.BOTTOM);
+                GeoHash.adjacentHash(null,Direction.TOP.opposite());
     }
     @Test
     public void adjacentHashT5(){//2
@@ -194,7 +194,7 @@ public class GeoHashTest {
     @Test
     public void adjacentHashT7(){//2
         assertEquals("h1gq",
-                GeoHash.adjacentHash("h1gw",Direction.LEFT));
+                GeoHash.adjacentHash("h1gw",Direction.RIGHT.opposite()));
     }
     @Test
     public void adjacentHashT8(){//2
